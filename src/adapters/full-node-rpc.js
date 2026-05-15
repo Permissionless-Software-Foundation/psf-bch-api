@@ -39,6 +39,7 @@ class FullNodeRPCAdapter {
 
   async call (method, params = [], requestId) {
     const id = requestId || `${this.requestIdPrefix}-${method}`
+    console.log('full-node-rpc.js/call(): this.http.defaults.baseURL: ', this.http.defaults.baseURL)
 
     try {
       const response = await this.http.post('', {
