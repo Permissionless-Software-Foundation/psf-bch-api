@@ -26,6 +26,9 @@ describe('#full-node-rpc.js', () => {
   beforeEach(() => {
     sandbox = sinon.createSandbox()
     mockAxiosInstance = {
+      defaults: {
+        baseURL: baseConfig.fullNode.rpcBaseUrl
+      },
       post: sandbox.stub()
     }
     axiosCreateStub = sandbox.stub(axios, 'create').returns(mockAxiosInstance)
