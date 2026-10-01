@@ -47,7 +47,7 @@ class PriceRESTController {
    * @api {get} /v6/price/bchusd Get the USD price of BCH
    * @apiName GetBCHUSD
    * @apiGroup Price
-   * @apiDescription Get the USD price of BCH from Coinex.
+   * @apiDescription Get the USD price of BCH from Bitstamp.
    *
    * @apiExample Example usage:
    * curl -X GET "https://api.fullstack.cash/v6/price/bchusd" -H "accept: application/json"
