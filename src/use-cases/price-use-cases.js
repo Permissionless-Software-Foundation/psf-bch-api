@@ -22,9 +22,9 @@ class PriceUseCases {
     // Get config
     this.config = localConfig.config || config
 
-    // Coinex API URL for BCH/USDT
-    this.bchCoinexPriceUrl =
-      'https://api.coinex.com/v1/market/ticker?market=bchusdt'
+    // Bitstamp API URL for BCH/USD
+    this.bchBitstampPriceUrl =
+      'https://www.bitstamp.net/api/v2/ticker/bchusd/'
 
     // Allow axios to be injected for testing
     this.axios = localConfig.axios || axios
@@ -38,7 +38,7 @@ class PriceUseCases {
   }
 
   /**
-   * Get the USD price of BCH from Coinex.
+   * Get the USD price of BCH from Bitstamp.
    * @returns {Promise<number>} The USD price of BCH
    */
   async getBCHUSD () {
@@ -46,13 +46,13 @@ class PriceUseCases {
       // Request options
       const opt = {
         method: 'get',
-        baseURL: this.bchCoinexPriceUrl,
+        baseURL: this.bchBitstampPriceUrl,
         timeout: 15000
       }
 
       const response = await this.axios.request(opt)
 
-      const price = Number(response.data.data.ticker.last)
+      const price = Number(response.data.last)
 
       return price
     } catch (err) {

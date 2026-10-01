@@ -48,15 +48,11 @@ describe('#price-use-cases.js', () => {
   })
 
   describe('#getBCHUSD()', () => {
-    it('should return BCH price from Coinex API', async () => {
+    it('should return BCH price from Bitstamp API', async () => {
       const mockPrice = 250.5
       mockAxios.request.resolves({
         data: {
-          data: {
-            ticker: {
-              last: mockPrice.toString()
-            }
-          }
+          last: mockPrice.toString()
         }
       })
 
@@ -66,7 +62,7 @@ describe('#price-use-cases.js', () => {
       assert.isTrue(mockAxios.request.calledOnce)
       const callArgs = mockAxios.request.getCall(0).args[0]
       assert.equal(callArgs.method, 'get')
-      assert.equal(callArgs.baseURL, 'https://api.coinex.com/v1/market/ticker?market=bchusdt')
+      assert.equal(callArgs.baseURL, 'https://www.bitstamp.net/api/v2/ticker/bchusd/')
       assert.equal(callArgs.timeout, 15000)
     })
 
