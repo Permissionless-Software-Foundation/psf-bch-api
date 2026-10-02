@@ -75,7 +75,16 @@ class FulcrumRESTController {
     try {
       bchjs.Address.toLegacyAddress(cashAddr)
     } catch (err) {
-      throw new Error(`Invalid BCH address. Double check your address is valid: ${address}`)
+      // P2SH32 addresses (used by CashScript contracts) have a 32-byte hash,
+      // and the legacy format can only hold 20 bytes. Accept them, but keep
+      // rejecting other hash sizes and non-BCH prefixes.
+      const { prefix, type, hash } = bchjs.Address._decode(cashAddr)
+      const isP2sh32 = ['bitcoincash', 'bchtest', 'bchreg'].includes(prefix) &&
+        type === 'P2SH' && hash.length === 32
+
+      if (!isP2sh32) {
+        throw new Error(`Invalid BCH address. Double check your address is valid: ${address}`)
+      }
     }
 
     // Ensure it's mainnet (no testnet support)

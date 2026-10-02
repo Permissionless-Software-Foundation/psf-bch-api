@@ -14,6 +14,17 @@ import {
 // Valid mainnet cash address for testing
 const VALID_MAINNET_ADDRESS = 'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
 
+// Valid mainnet P2SH32 address (32-byte script hash, used by CashScript)
+const P2SH32_MAINNET_ADDRESS = 'bitcoincash:pdk82s4d8v2yh85z5gu2zpsljmdz0vkegys22u7prv6p6hz73957uy47s9xup'
+
+// The same 32-byte script hash as a testnet address
+const P2SH32_TESTNET_ADDRESS = 'bchtest:pdk82s4d8v2yh85z5gu2zpsljmdz0vkegys22u7prv6p6hz73957u8j0wa4fn'
+
+// Cash addresses with a valid checksum that are not standard BCH addresses
+const P2PKH_32_BYTE_HASH_ADDRESS = 'bitcoincash:qdk82s4d8v2yh85z5gu2zpsljmdz0vkegys22u7prv6p6hz73957udgsyajys'
+const P2SH_24_BYTE_HASH_ADDRESS = 'bitcoincash:p9k82s4d8v2yh85z5gu2zpsljmdz0vkegys22u7p9nqcdcyw'
+const P2SH32_ECASH_ADDRESS = 'ecash:pdk82s4d8v2yh85z5gu2zpsljmdz0vkegys22u7prv6p6hz73957u7gemdpyt'
+
 describe('#slp-controller.js', () => {
   let sandbox
   let mockUseCases
@@ -151,6 +162,68 @@ describe('#slp-controller.js', () => {
 
       assert.equal(res.statusValue, 400)
       assert.deepEqual(res.jsonData, { error: 'Invalid address' })
+    })
+
+    it('should accept a P2SH32 address', async () => {
+      const req = createMockRequest({
+        body: { address: P2SH32_MAINNET_ADDRESS }
+      })
+      const res = createMockResponse()
+
+      await uut.getAddress(req, res)
+
+      assert.equal(res.statusValue, 200)
+      assert.deepEqual(res.jsonData, { balance: 1000 })
+      assert.isTrue(mockUseCases.slp.getAddress.calledOnce)
+      assert.isTrue(mockUseCases.slp.getAddress.calledWithMatch({ address: P2SH32_MAINNET_ADDRESS }))
+    })
+
+    it('should reject a testnet P2SH32 address', async () => {
+      const req = createMockRequest({
+        body: { address: P2SH32_TESTNET_ADDRESS }
+      })
+      const res = createMockResponse()
+
+      await uut.getAddress(req, res)
+
+      assert.include(res.jsonData.error, 'Only mainnet addresses are supported')
+      assert.isTrue(mockUseCases.slp.getAddress.notCalled)
+    })
+
+    it('should reject a P2PKH address with a 32-byte hash', async () => {
+      const req = createMockRequest({
+        body: { address: P2PKH_32_BYTE_HASH_ADDRESS }
+      })
+      const res = createMockResponse()
+
+      await uut.getAddress(req, res)
+
+      assert.include(res.jsonData.error, 'Invalid BCH address')
+      assert.isTrue(mockUseCases.slp.getAddress.notCalled)
+    })
+
+    it('should reject a P2SH address with a 24-byte hash', async () => {
+      const req = createMockRequest({
+        body: { address: P2SH_24_BYTE_HASH_ADDRESS }
+      })
+      const res = createMockResponse()
+
+      await uut.getAddress(req, res)
+
+      assert.include(res.jsonData.error, 'Invalid BCH address')
+      assert.isTrue(mockUseCases.slp.getAddress.notCalled)
+    })
+
+    it('should reject a P2SH32 address with an eCash prefix', async () => {
+      const req = createMockRequest({
+        body: { address: P2SH32_ECASH_ADDRESS }
+      })
+      const res = createMockResponse()
+
+      await uut.getAddress(req, res)
+
+      assert.include(res.jsonData.error, 'Invalid BCH address')
+      assert.isTrue(mockUseCases.slp.getAddress.notCalled)
     })
   })
 
